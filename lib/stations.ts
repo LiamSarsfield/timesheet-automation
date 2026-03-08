@@ -41,7 +41,8 @@ export const NAS_STATIONS = [
   "Tralee",
   "Tuam",
   "Tullamore",
-  "Waterford",
+  "Waterford - City",
+  "Waterford - Dungarvan",
   "Wexford",
 ] as const;
 
