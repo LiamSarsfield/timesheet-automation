@@ -11,6 +11,7 @@ import type { ValidationError } from "@/lib/validation";
 import HeaderFields from "./header-fields";
 import DayEntry from "./day-entry";
 import FormErrorSummary from "./form-error-summary";
+import DownloadModal from "./download-modal";
 
 interface GeneratedFiles {
   csv: { data: string; filename: string };
@@ -40,6 +41,7 @@ export default function TimesheetForm() {
   const [data, setData] = useState<TimesheetData>(() => buildInitialData(getCurrentMonday()));
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFiles | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleDateWeekStartingChange(monday: string) {
@@ -82,6 +84,7 @@ export default function TimesheetForm() {
       }
 
       setGeneratedFiles(result);
+      setShowModal(true);
     } catch {
       setErrors([{ field: "_", message: "Network error. Please try again." }]);
     } finally {
@@ -156,34 +159,23 @@ export default function TimesheetForm() {
         >
           {isSubmitting ? "Generating..." : "Generate Timesheet"}
         </button>
+        {generatedFiles && !showModal && (
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="px-4 py-2 bg-green-50 border border-green-300 rounded-lg text-green-700 font-medium hover:bg-green-100"
+          >
+            Re-download files
+          </button>
+        )}
       </div>
 
-      {generatedFiles && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-4">
-          <h3 className="text-lg font-semibold text-green-800">
-            Timesheet generated successfully!
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                downloadFile(generatedFiles.csv.data, generatedFiles.csv.filename)
-              }
-              className="px-4 py-2 bg-white border border-green-300 rounded-lg text-green-700 font-medium hover:bg-green-50"
-            >
-              Download CSV
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                downloadFile(generatedFiles.xlsx.data, generatedFiles.xlsx.filename)
-              }
-              className="px-4 py-2 bg-white border border-green-300 rounded-lg text-green-700 font-medium hover:bg-green-50"
-            >
-              Download XLSX
-            </button>
-          </div>
-        </div>
+      {showModal && generatedFiles && (
+        <DownloadModal
+          generatedFiles={generatedFiles}
+          onClose={() => setShowModal(false)}
+          onDownload={downloadFile}
+        />
       )}
     </form>
   );
