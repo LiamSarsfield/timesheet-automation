@@ -1,8 +1,7 @@
-import fs from "fs";
-import path from "path";
 import ExcelJS from "exceljs";
 import type { TimesheetData, TimesheetRow } from "./types";
 import { STATUS_DISPLAY } from "./types";
+import { HSE_LOGO_BASE64 } from "./hse-logo";
 import {
   calculateWeekDates,
   getSundayFromMonday,
@@ -196,17 +195,14 @@ export async function generateXlsx(data: TimesheetData): Promise<Buffer> {
   // LOGOS (top row)
   // ============================================================
 
-  const hsePath = path.join(process.cwd(), "public", "hse-logo.png");
-  if (fs.existsSync(hsePath)) {
-    const hseId = workbook.addImage({
-      buffer: fs.readFileSync(hsePath),
-      extension: "png",
-    });
-    ws.addImage(hseId, {
-      tl: { col: 0.2, row: 0.5 },
-      ext: { width: 100, height: 80 },
-    });
-  }
+  const hseId = workbook.addImage({
+    base64: HSE_LOGO_BASE64,
+    extension: "png",
+  });
+  ws.addImage(hseId, {
+    tl: { col: 0.2, row: 0.5 },
+    ext: { width: 100, height: 80 },
+  });
 
 
   // ============================================================
