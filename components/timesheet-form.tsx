@@ -1,0 +1,246 @@
+"use client";
+
+import { useState } from "react";
+import {
+  DAY_NAMES,
+  createEmptyDay,
+  type TimesheetData,
+} from "@/lib/types";
+import { calculateWeekDates, getSundayFromMonday, formatIsoDate } from "@/lib/date-utils";
+import type { ValidationError } from "@/lib/validation";
+import HeaderFields from "./header-fields";
+import DayEntry from "./day-entry";
+import FormErrorSummary from "./form-error-summary";
+
+interface GeneratedFiles {
+  csv: { data: string; filename: string };
+  xlsx: { data: string; filename: string };
+}
+
+function getCurrentMonday(): string {
+  const today = new Date();
+  const day = today.getUTCDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  today.setUTCDate(today.getUTCDate() + diff);
+  return formatIsoDate(today);
+}
+
+function buildInitialData(monday: string): TimesheetData {
+  const weekDates = calculateWeekDates(monday);
+  return {
+    name: "",
+    personnelNumber: "",
+    dateWeekStarting: monday,
+    station: "",
+    email: "",
+    days: weekDates.map(({ dayName, date }) => createEmptyDay(dayName, date)),
+  };
+}
+
+export default function TimesheetForm() {
+  const [data, setData] = useState<TimesheetData>(() => buildInitialData(getCurrentMonday()));
+  const [errors, setErrors] = useState<ValidationError[]>([]);
+  const [generatedFiles, setGeneratedFiles] = useState<GeneratedFiles | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"idle" | "success" | "error">("idle");
+
+  function handleDateWeekStartingChange(monday: string) {
+    try {
+      const weekDates = calculateWeekDates(monday);
+      setData((prev) => ({
+        ...prev,
+        dateWeekStarting: monday,
+        days: weekDates.map(({ dayName, date: isoDate }) => {
+          const existingDay = prev.days.find((d) => d.dayName === dayName);
+          if (existingDay) {
+            return { ...existingDay, date: isoDate };
+          }
+          return createEmptyDay(dayName, isoDate);
+        }),
+      }));
+    } catch {
+      // Invalid date
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErrors([]);
+    setGeneratedFiles(null);
+    setIsSubmitting(true);
+    setEmailStatus("idle");
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setErrors(result.errors || [{ field: "_", message: "Generation failed" }]);
+        return;
+      }
+
+      setGeneratedFiles(result);
+    } catch {
+      setErrors([{ field: "_", message: "Network error. Please try again." }]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function downloadFile(base64: string, filename: string) {
+    const bytes = atob(base64);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) {
+      arr[i] = bytes.charCodeAt(i);
+    }
+    const blob = new Blob([arr]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleSendEmail() {
+    if (!generatedFiles) return;
+    setIsSendingEmail(true);
+    setEmailStatus("idle");
+
+    const sundayStr = getSundayFromMonday(data.dateWeekStarting);
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: data.email,
+          name: data.name,
+          weekEnding: sundayStr,
+          csvBase64: generatedFiles.csv.data,
+          xlsxBase64: generatedFiles.xlsx.data,
+        }),
+      });
+
+      if (response.ok) {
+        setEmailStatus("success");
+      } else {
+        setEmailStatus("error");
+      }
+    } catch {
+      setEmailStatus("error");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <HeaderFields
+        name={data.name}
+        personnelNumber={data.personnelNumber}
+        station={data.station}
+        email={data.email}
+        dateWeekStarting={data.dateWeekStarting}
+        onNameChange={(name) => setData((prev) => ({ ...prev, name }))}
+        onPersonnelNumberChange={(personnelNumber) =>
+          setData((prev) => ({ ...prev, personnelNumber }))
+        }
+        onStationChange={(station) =>
+          setData((prev) => ({
+            ...prev,
+            station,
+            days: prev.days.map((day) => ({
+              ...day,
+              roster: { ...day.roster, stationWorkedFrom: station },
+              actual: { ...day.actual, stationWorkedFrom: station },
+            })),
+          }))
+        }
+        onEmailChange={(email) => setData((prev) => ({ ...prev, email }))}
+        onDateWeekStartingChange={handleDateWeekStartingChange}
+      />
+
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-gray-900">Daily Entries</h2>
+        {data.days.map((day, index) => (
+          <DayEntry
+            key={day.dayName}
+            day={day}
+            onChange={(updatedDay) => {
+              setData((prev) => {
+                const newDays = [...prev.days];
+                newDays[index] = updatedDay;
+                return { ...prev, days: newDays };
+              });
+            }}
+          />
+        ))}
+      </div>
+
+      <FormErrorSummary errors={errors} />
+
+      <div className="flex gap-3">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Generating..." : "Generate Timesheet"}
+        </button>
+      </div>
+
+      {generatedFiles && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-green-800">
+            Timesheet generated successfully!
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                downloadFile(generatedFiles.csv.data, generatedFiles.csv.filename)
+              }
+              className="px-4 py-2 bg-white border border-green-300 rounded-lg text-green-700 font-medium hover:bg-green-50"
+            >
+              Download CSV
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                downloadFile(generatedFiles.xlsx.data, generatedFiles.xlsx.filename)
+              }
+              className="px-4 py-2 bg-white border border-green-300 rounded-lg text-green-700 font-medium hover:bg-green-50"
+            >
+              Download XLSX
+            </button>
+            <button
+              type="button"
+              onClick={handleSendEmail}
+              disabled={isSendingEmail}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+            >
+              {isSendingEmail ? "Sending..." : "Send to my email"}
+            </button>
+          </div>
+          {emailStatus === "success" && (
+            <p className="text-sm text-green-700">
+              Email sent successfully to {data.email}
+            </p>
+          )}
+          {emailStatus === "error" && (
+            <p className="text-sm text-red-700">
+              Failed to send email. Please check SMTP configuration and try again.
+            </p>
+          )}
+        </div>
+      )}
+    </form>
+  );
+}
