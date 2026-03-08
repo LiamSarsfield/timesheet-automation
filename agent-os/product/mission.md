@@ -12,8 +12,8 @@ All National Ambulance Service staff who submit weekly timesheets.
 
 A template-aware web application that:
 - Provides a simple web UI where employees enter their hours for each day
-- Prompts for incident details only when overtime is recorded
-- Automatically detects and calculates overtime hours
+- Auto-copies roster to actual — employee adjusts only differences
+- Automatically detects and calculates overtime hours when actual shift end exceeds roster
+- Prompts for incident details only when overtime is detected
 - Generates compliant output matching the exact NAS template format (CSV + Excel)
-- Emails completed timesheets to the employee for review
-- Auto-fills from roster data (post-MVP)
+- Direct download of both CSV and XLSX files from the browser (email integration deferred to future phase)

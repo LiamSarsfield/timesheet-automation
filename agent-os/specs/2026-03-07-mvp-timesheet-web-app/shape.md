@@ -11,16 +11,8 @@ A Next.js web app where employees fill a form, get a generated CSV + XLSX matchi
 ### Roster → Actual Auto-Copy
 Employee enters the Roster row for each day; it auto-copies to the Actual row. They then only adjust differences. This dramatically reduces data entry.
 
-### Three Upfront Toggles
-Before entering day data, the user answers three yes/no questions:
-1. "Did you work overtime?"
-2. "Were you on-call?"
-3. "Do you need to claim subsistence?"
-
-Only relevant field groups are shown, keeping the form clean for the common case.
-
-### Overtime Is Explicit
-The employee explicitly marks which days had overtime and fills in the details. No threshold-based auto-detection.
+### Overtime Auto-Detection
+Overtime is auto-detected per-day when the actual shift end exceeds the roster shift end. Overtime hours are calculated and displayed automatically. On-call and subsistence fields are excluded from the form (employee doesn't fill these) but remain in the generated CSV/XLSX template columns.
 
 ### Download-Only for MVP
 Users download files directly from the browser. Email integration (sending files to the employee for review before forwarding to payroll) is deferred to a future phase.

@@ -7,9 +7,9 @@ NAS (National Ambulance Service) staff manually fill out CSV/Excel timesheets we
 ## Key Decisions
 
 - **Roster auto-copies to Actual** — Employee enters Roster row, it auto-copies to Actual. They adjust only the differences.
-- **Three upfront toggles** — "Did you work overtime?", "Were you on-call?", "Do you need to claim subsistence?" — only show those field groups when answered "Yes"
-- **Employee marks overtime explicitly** — Not threshold-based
-- **Incident details required only when overtime is present**
+- **Overtime auto-detected per-day** — When actual shift end exceeds roster shift end, overtime is flagged and hours calculated automatically
+- **On-Call and Subsistence removed from form** — Employee doesn't fill these; they remain in the CSV/XLSX template columns but aren't exposed in the UI
+- **Incident details required only when overtime is detected**
 - **Download-only for MVP** — Email integration deferred to a future phase
 - **No runtime template parsing** — The CSV has a fixed 33-row × 16-column layout. Hardcode positions in constants. The `template.csv` stays as a reference.
 - **Base64 file transfer** — Generated files are small (< 50KB), so return as base64 JSON from API
@@ -49,7 +49,7 @@ app/
 components/
   timesheet-form.tsx
   header-fields.tsx
-  weekly-toggles.tsx
+  monday-picker.tsx
   day-entry.tsx
   day-status-select.tsx
   time-range-input.tsx
@@ -61,6 +61,7 @@ lib/
   generate-csv.ts
   generate-xlsx.ts
   date-utils.ts
+  stations.ts
 __tests__/
   validation.test.ts
   generate-csv.test.ts
