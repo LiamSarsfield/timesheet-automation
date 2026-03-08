@@ -193,21 +193,21 @@ export async function generateXlsx(data: TimesheetData): Promise<Buffer> {
   };
 
   // ============================================================
-  // HSE LOGO (top-left)
+  // LOGOS (top row)
   // ============================================================
 
-  const logoPath = path.join(process.cwd(), "public", "hse-logo.png");
-  if (fs.existsSync(logoPath)) {
-    const logoBuffer = fs.readFileSync(logoPath);
-    const imageId = workbook.addImage({
-      buffer: logoBuffer,
+  const hsePath = path.join(process.cwd(), "public", "hse-logo.png");
+  if (fs.existsSync(hsePath)) {
+    const hseId = workbook.addImage({
+      buffer: fs.readFileSync(hsePath),
       extension: "png",
     });
-    ws.addImage(imageId, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 120, height: 50 },
+    ws.addImage(hseId, {
+      tl: { col: 0.2, row: 0.5 },
+      ext: { width: 100, height: 80 },
     });
   }
+
 
   // ============================================================
   // METADATA SECTION (rows 2, 4)
