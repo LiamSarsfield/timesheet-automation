@@ -47,7 +47,7 @@ export default function DownloadModal({
         {/* Green checkmark */}
         <div className="flex justify-center mb-4">
           <svg
-            className="h-16 w-16 text-green-500"
+            className="h-16 w-16 text-nas-green"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -71,7 +71,7 @@ export default function DownloadModal({
             onClick={() =>
               onDownload(generatedFiles.csv.data, generatedFiles.csv.filename)
             }
-            className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            className="w-full px-4 py-3 bg-nas-green text-white rounded-lg font-medium hover:bg-nas-green-dark transition-colors"
           >
             Download CSV
           </button>
@@ -80,7 +80,7 @@ export default function DownloadModal({
             onClick={() =>
               onDownload(generatedFiles.xlsx.data, generatedFiles.xlsx.filename)
             }
-            className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            className="w-full px-4 py-3 bg-nas-green text-white rounded-lg font-medium hover:bg-nas-green-dark transition-colors"
           >
             Download Excel
           </button>

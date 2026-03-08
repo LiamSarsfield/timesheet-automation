@@ -25,8 +25,8 @@ export default function HeaderFields({
   onDateWeekStartingChange,
 }: HeaderFieldsProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Employee Details</h2>
+    <div className="bg-white rounded-lg shadow p-6 space-y-4 border-t-[3px] border-t-nas-green">
+      <h2 className="text-lg font-semibold text-nas-green">Employee Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">

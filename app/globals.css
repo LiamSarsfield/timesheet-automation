@@ -3,11 +3,19 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --nas-green: #006B3F;
+  --nas-green-dark: #004F2D;
+  --nas-green-light: #E8F5EE;
+  --nas-green-50: #F0FAF4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-nas-green: var(--nas-green);
+  --color-nas-green-dark: var(--nas-green-dark);
+  --color-nas-green-light: var(--nas-green-light);
+  --color-nas-green-50: var(--nas-green-50);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

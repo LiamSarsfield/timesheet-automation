@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NAS Timesheet Automation",
+  title: "NAS Timesheet | National Ambulance Service",
   description: "Generate NAS timesheets quickly and accurately",
+  icons: { icon: "/nas-logo.png" },
 };
 
 export default function RootLayout({

@@ -156,7 +156,7 @@ export default function TimesheetForm() {
       />
 
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Daily Entries</h2>
+        <h2 className="text-lg font-semibold text-nas-green">Daily Entries</h2>
         {data.days.map((day, index) => (
           <DayEntry
             key={day.dayName}
@@ -178,7 +178,7 @@ export default function TimesheetForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-nas-green text-white rounded-lg font-medium hover:bg-nas-green-dark disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Generating..." : "Generate Timesheet"}
         </button>
@@ -186,7 +186,7 @@ export default function TimesheetForm() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-green-50 border border-green-300 rounded-lg text-green-700 font-medium hover:bg-green-100"
+            className="px-4 py-2 bg-nas-green-50 border border-nas-green rounded-lg text-nas-green font-medium hover:bg-nas-green-light"
           >
             Re-download files
           </button>

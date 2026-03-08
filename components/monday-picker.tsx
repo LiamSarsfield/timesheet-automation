@@ -148,9 +148,9 @@ export default function MondayPicker({ value, onChange, id }: MondayPickerProps)
                     onClick={() => selectDay(day)}
                     className={`py-1 text-sm rounded ${
                       selected
-                        ? "bg-blue-600 text-white font-bold"
+                        ? "bg-nas-green text-white font-bold"
                         : mon
-                          ? "text-gray-900 font-semibold hover:bg-blue-100 cursor-pointer"
+                          ? "text-gray-900 font-semibold hover:bg-nas-green-light cursor-pointer"
                           : "text-gray-300 cursor-default"
                     }`}
                   >
