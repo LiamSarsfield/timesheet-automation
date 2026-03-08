@@ -7,9 +7,9 @@ describe("buildUrlSearch", () => {
     const result = buildUrlSearch({
       name: "John Smith",
       personnelNumber: "12345",
-      station: "Cork",
+      station: "Cork - Cork City",
     });
-    expect(result).toBe("?name=John+Smith&personnelNumber=12345&station=Cork");
+    expect(result).toBe("?name=John+Smith&personnelNumber=12345&station=Cork+-+Cork+City");
   });
 
   it("returns empty string when all params are empty", () => {
@@ -25,9 +25,9 @@ describe("buildUrlSearch", () => {
     const result = buildUrlSearch({
       name: "Jane",
       personnelNumber: "",
-      station: "Galway",
+      station: "Galway - Galway City",
     });
-    expect(result).toBe("?name=Jane&station=Galway");
+    expect(result).toBe("?name=Jane&station=Galway+-+Galway+City");
   });
 
   it("encodes special characters", () => {
@@ -62,12 +62,12 @@ describe("parseUrlParams", () => {
   });
 
   it("parses valid params", () => {
-    setSearch("?name=John+Smith&personnelNumber=12345&station=Cork");
+    setSearch("?name=John+Smith&personnelNumber=12345&station=Cork+-+Cork+City");
     const result = parseUrlParams();
     expect(result).toEqual({
       name: "John Smith",
       personnelNumber: "12345",
-      station: "Cork",
+      station: "Cork - Cork City",
     });
   });
 
@@ -94,7 +94,7 @@ describe("parseUrlParams", () => {
   });
 
   it("handles URL encoding round-trip", () => {
-    const original = { name: "O'Brien & Co", personnelNumber: "99", station: "New Ross" };
+    const original = { name: "O'Brien & Co", personnelNumber: "99", station: "Wexford - New Ross" };
     const search = buildUrlSearch(original);
     setSearch(search);
     const parsed = parseUrlParams();
