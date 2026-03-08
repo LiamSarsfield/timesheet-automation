@@ -9,7 +9,7 @@ export default function Home() {
             NAS Timesheet Automation
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Fill in your weekly timesheet, generate CSV/XLSX files, and send to your email for review.
+            Fill in your weekly timesheet and download as CSV or Excel.
           </p>
         </div>
       </header>

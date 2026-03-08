@@ -82,7 +82,7 @@ export default function DownloadModal({
             }
             className="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
           >
-            Download XLSX
+            Download Excel
           </button>
           <button
             type="button"

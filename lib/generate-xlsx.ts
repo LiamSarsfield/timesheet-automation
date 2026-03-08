@@ -200,7 +200,7 @@ export async function generateXlsx(data: TimesheetData): Promise<Buffer> {
     extension: "png",
   });
   ws.addImage(hseId, {
-    tl: { col: 0.2, row: 0.5 },
+    tl: { col: 1.2, row: 0.5 },
     ext: { width: 100, height: 80 },
   });
 
