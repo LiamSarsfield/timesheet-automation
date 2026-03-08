@@ -1,0 +1,7 @@
+global:
+  data-handling:
+    description: CSV template parsing, data flow, and output format (CSV + XLSX)
+  error-handling:
+    description: Inline validation strategy and error reporting format
+  file-structure:
+    description: File naming conventions (kebab-case) and flat src/ layout
