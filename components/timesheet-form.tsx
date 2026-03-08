@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DAY_NAMES,
   createEmptyDay,
   type TimesheetData,
 } from "@/lib/types";
 import { calculateWeekDates, formatIsoDate } from "@/lib/date-utils";
+import { parseUrlParams } from "@/lib/url-params";
+import { useUrlSync } from "@/hooks/use-url-sync";
 import type { ValidationError } from "@/lib/validation";
 import HeaderFields from "./header-fields";
 import DayEntry from "./day-entry";
@@ -39,7 +41,28 @@ function buildInitialData(monday: string): TimesheetData {
 
 export default function TimesheetForm() {
   const [data, setData] = useState<TimesheetData>(() => buildInitialData(getCurrentMonday()));
+  useUrlSync(data.name, data.personnelNumber, data.station);
   const [errors, setErrors] = useState<ValidationError[]>([]);
+
+  // Seed form from URL params on mount (runs client-side only)
+  useEffect(() => {
+    const urlParams = parseUrlParams();
+    if (urlParams.name || urlParams.personnelNumber || urlParams.station) {
+      setData((prev) => ({
+        ...prev,
+        name: urlParams.name || prev.name,
+        personnelNumber: urlParams.personnelNumber || prev.personnelNumber,
+        station: urlParams.station || prev.station,
+        days: urlParams.station
+          ? prev.days.map((day) => ({
+              ...day,
+              roster: { ...day.roster, stationWorkedFrom: urlParams.station },
+              actual: { ...day.actual, stationWorkedFrom: urlParams.station },
+            }))
+          : prev.days,
+      }));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFiles | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
