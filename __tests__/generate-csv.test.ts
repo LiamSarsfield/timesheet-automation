@@ -41,7 +41,6 @@ function makeTestData(): TimesheetData {
     personnelNumber: "63221553",
     dateWeekStarting: monday,
     station: "Waterford",
-    email: "jane@example.com",
     days,
   };
 }

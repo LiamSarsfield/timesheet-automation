@@ -18,4 +18,4 @@
 - Sick Leave must be clearly stated on paysheet & GP Cert forwarded to Ambulance HQ
 - Annual leave must be clearly stated and approved in advance
 - All other leave must be applied for on appropriate HR form
-- Paysheet can be sent by email to: ambulance.payroll@hse.ie
+- Paysheet can be sent by email to: ambulance.payroll@hse.ie (email integration deferred to future phase — MVP is download-only)

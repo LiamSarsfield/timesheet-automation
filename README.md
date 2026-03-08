@@ -12,7 +12,7 @@ A web app for National Ambulance Service staff to fill out weekly timesheets and
 - Per-day station override (defaults from header station)
 - CSV and XLSX generation matching the official 33-row x 16-column NAS template
 - XLSX styled to match the official format (colors, fonts, borders, cell merges, A4 landscape)
-- Email delivery with both files attached via nodemailer
+- Direct CSV and XLSX download from the browser
 - Zod validation with human-readable error messages
 
 ## Tech Stack
@@ -21,8 +21,7 @@ A web app for National Ambulance Service staff to fill out weekly timesheets and
 - **Styling:** Tailwind CSS 4
 - **File Generation:** ExcelJS (XLSX), csv-stringify (CSV)
 - **Validation:** Zod
-- **Email:** nodemailer
-- **Testing:** Vitest (43 tests)
+- **Testing:** Vitest (42 tests)
 
 ## Getting Started
 
@@ -44,14 +43,6 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
-
-### Email Configuration (Optional)
-
-Copy `.env.example` to `.env.local` and fill in your SMTP credentials:
-
-```bash
-cp .env.example .env.local
-```
 
 ### Running Tests
 
@@ -77,7 +68,6 @@ lib/                    # Core logic
   template-layout.ts    # 33x16 template grid constants
   generate-csv.ts       # CSV generation
   generate-xlsx.ts      # XLSX generation with styling
-  send-email.ts         # nodemailer wrapper
 
 components/             # React components
   timesheet-form.tsx    # Main form orchestrator
@@ -91,7 +81,6 @@ components/             # React components
 app/
   page.tsx              # Home page
   api/generate/         # POST: generate CSV + XLSX
-  api/send-email/       # POST: email files
 
-__tests__/              # 43 tests across 4 files
+__tests__/              # 42 tests across 4 files
 ```

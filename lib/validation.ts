@@ -19,7 +19,6 @@ function humanizePath(path: PropertyKey[]): string {
     personnelNumber: "Personnel Number",
     dateWeekStarting: "Week Starting",
     station: "Station",
-    email: "Email",
     timeFrom: "Start Time",
     timeTo: "End Time",
     stationWorkedFrom: "Station",

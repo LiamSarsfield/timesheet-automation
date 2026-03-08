@@ -7,12 +7,10 @@ interface HeaderFieldsProps {
   name: string;
   personnelNumber: string;
   station: string;
-  email: string;
   dateWeekStarting: string;
   onNameChange: (value: string) => void;
   onPersonnelNumberChange: (value: string) => void;
   onStationChange: (value: string) => void;
-  onEmailChange: (value: string) => void;
   onDateWeekStartingChange: (value: string) => void;
 }
 
@@ -20,12 +18,10 @@ export default function HeaderFields({
   name,
   personnelNumber,
   station,
-  email,
   dateWeekStarting,
   onNameChange,
   onPersonnelNumberChange,
   onStationChange,
-  onEmailChange,
   onDateWeekStartingChange,
 }: HeaderFieldsProps) {
   return (
@@ -75,19 +71,6 @@ export default function HeaderFields({
               </option>
             ))}
           </select>
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
-            placeholder="e.g. jane@example.com"
-          />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">

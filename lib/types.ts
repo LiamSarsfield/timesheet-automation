@@ -107,7 +107,6 @@ export const timesheetDataSchema = z
     personnelNumber: z.string().min(1, "Personnel number is required"),
     dateWeekStarting: z.string().min(1, "Week starting date is required"),
     station: z.string().min(1, "Station is required"),
-    email: z.string().email("Valid email is required"),
     days: z.array(timesheetDaySchema).length(7),
   })
   .superRefine((data, ctx) => {

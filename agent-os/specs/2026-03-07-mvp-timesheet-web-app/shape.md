@@ -4,7 +4,7 @@
 NAS staff manually fill out CSV/Excel timesheets weekly. This is repetitive, error-prone, and wastes time.
 
 ## Solution Shape
-A Next.js web app where employees fill a form, get a generated CSV + XLSX matching the official NAS template, and receive it via email for review.
+A Next.js web app where employees fill a form, get a generated CSV + XLSX matching the official NAS template, and download them directly.
 
 ## Key Shaping Decisions
 
@@ -22,8 +22,8 @@ Only relevant field groups are shown, keeping the form clean for the common case
 ### Overtime Is Explicit
 The employee explicitly marks which days had overtime and fills in the details. No threshold-based auto-detection.
 
-### Email to Employee (Not Payroll)
-The generated files go to the employee's email for review before they forward to payroll. This prevents errors reaching payroll.
+### Download-Only for MVP
+Users download files directly from the browser. Email integration (sending files to the employee for review before forwarding to payroll) is deferred to a future phase.
 
 ### No Runtime Template Parsing
 The CSV template has a fixed 33-row × 16-column layout. We hardcode positions in constants rather than parsing the template at runtime. The `template.csv` stays as a reference artifact.
@@ -35,7 +35,7 @@ Generated files are small (< 50KB), so the API returns them as base64-encoded JS
 Day-by-day collapsible sections keep the form manageable. Each day expands to show its fields.
 
 ## Appetite
-Small batch — MVP focused on core flow: form → generate → download/email.
+Small batch — MVP focused on core flow: form → generate → download.
 
 ## Rabbit Holes to Avoid
 - No user accounts or authentication for MVP

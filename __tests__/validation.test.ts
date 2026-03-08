@@ -13,7 +13,6 @@ function makeValidData(): TimesheetData {
     personnelNumber: "63221553",
     dateWeekStarting: monday,
     station: "Waterford",
-    email: "jane@example.com",
     days: weekDates.map(({ dayName, date }) => createEmptyDay(dayName, date)),
   };
 }
@@ -31,14 +30,6 @@ describe("validateTimesheetData", () => {
     const result = validateTimesheetData(data);
     expect(result.success).toBe(false);
     expect(result.errors.some((e) => e.field === "Name")).toBe(true);
-  });
-
-  it("fails when email is invalid", () => {
-    const data = makeValidData();
-    data.email = "not-an-email";
-    const result = validateTimesheetData(data);
-    expect(result.success).toBe(false);
-    expect(result.errors.some((e) => e.field === "Email")).toBe(true);
   });
 
   it("fails when week starting is not a Monday", () => {
@@ -86,11 +77,10 @@ describe("validateTimesheetData", () => {
   it("collects multiple errors", () => {
     const data = makeValidData();
     data.name = "";
-    data.email = "bad";
     data.personnelNumber = "";
     const result = validateTimesheetData(data);
     expect(result.success).toBe(false);
-    expect(result.errors.length).toBeGreaterThanOrEqual(3);
+    expect(result.errors.length).toBeGreaterThanOrEqual(2);
   });
 
   it("produces human-readable field names", () => {

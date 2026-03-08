@@ -6,7 +6,7 @@ import {
   createEmptyDay,
   type TimesheetData,
 } from "@/lib/types";
-import { calculateWeekDates, getSundayFromMonday, formatIsoDate } from "@/lib/date-utils";
+import { calculateWeekDates, formatIsoDate } from "@/lib/date-utils";
 import type { ValidationError } from "@/lib/validation";
 import HeaderFields from "./header-fields";
 import DayEntry from "./day-entry";
@@ -32,7 +32,6 @@ function buildInitialData(monday: string): TimesheetData {
     personnelNumber: "",
     dateWeekStarting: monday,
     station: "",
-    email: "",
     days: weekDates.map(({ dayName, date }) => createEmptyDay(dayName, date)),
   };
 }
@@ -42,8 +41,6 @@ export default function TimesheetForm() {
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFiles | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [emailStatus, setEmailStatus] = useState<"idle" | "success" | "error">("idle");
 
   function handleDateWeekStartingChange(monday: string) {
     try {
@@ -69,7 +66,6 @@ export default function TimesheetForm() {
     setErrors([]);
     setGeneratedFiles(null);
     setIsSubmitting(true);
-    setEmailStatus("idle");
 
     try {
       const response = await fetch("/api/generate", {
@@ -108,45 +104,12 @@ export default function TimesheetForm() {
     URL.revokeObjectURL(url);
   }
 
-  async function handleSendEmail() {
-    if (!generatedFiles) return;
-    setIsSendingEmail(true);
-    setEmailStatus("idle");
-
-    const sundayStr = getSundayFromMonday(data.dateWeekStarting);
-
-    try {
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: data.email,
-          name: data.name,
-          weekEnding: sundayStr,
-          csvBase64: generatedFiles.csv.data,
-          xlsxBase64: generatedFiles.xlsx.data,
-        }),
-      });
-
-      if (response.ok) {
-        setEmailStatus("success");
-      } else {
-        setEmailStatus("error");
-      }
-    } catch {
-      setEmailStatus("error");
-    } finally {
-      setIsSendingEmail(false);
-    }
-  }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <HeaderFields
         name={data.name}
         personnelNumber={data.personnelNumber}
         station={data.station}
-        email={data.email}
         dateWeekStarting={data.dateWeekStarting}
         onNameChange={(name) => setData((prev) => ({ ...prev, name }))}
         onPersonnelNumberChange={(personnelNumber) =>
@@ -163,7 +126,6 @@ export default function TimesheetForm() {
             })),
           }))
         }
-        onEmailChange={(email) => setData((prev) => ({ ...prev, email }))}
         onDateWeekStartingChange={handleDateWeekStartingChange}
       />
 
@@ -220,25 +182,7 @@ export default function TimesheetForm() {
             >
               Download XLSX
             </button>
-            <button
-              type="button"
-              onClick={handleSendEmail}
-              disabled={isSendingEmail}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
-            >
-              {isSendingEmail ? "Sending..." : "Send to my email"}
-            </button>
           </div>
-          {emailStatus === "success" && (
-            <p className="text-sm text-green-700">
-              Email sent successfully to {data.email}
-            </p>
-          )}
-          {emailStatus === "error" && (
-            <p className="text-sm text-red-700">
-              Failed to send email. Please check SMTP configuration and try again.
-            </p>
-          )}
         </div>
       )}
     </form>

@@ -13,7 +13,6 @@
 
 - **csv-parse / csv-stringify** — CSV reading and writing
 - **ExcelJS** — Excel (.xlsx) generation with formatting support
-- **nodemailer** — Email sending for timesheet submission
 - **zod** — Input validation and type-safe parsing
 
 ## Build & Dev
