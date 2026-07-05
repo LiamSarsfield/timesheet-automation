@@ -74,6 +74,41 @@ describe("validateTimesheetData", () => {
     ).toBe(true);
   });
 
+  it("passes for rest-day overtime with hours and a reason", () => {
+    const data = makeValidData();
+    data.days[4].actual.status = "overtime";
+    data.days[4].actual.timeFrom = "18:00";
+    data.days[4].actual.timeTo = "23:00";
+    data.days[4].overtimeReason = "Called in 12345";
+    const result = validateTimesheetData(data);
+    expect(result.success).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("fails when rest-day overtime has no hours or reason", () => {
+    const data = makeValidData();
+    data.days[4].actual.status = "overtime";
+    const result = validateTimesheetData(data);
+    expect(result.success).toBe(false);
+    expect(
+      result.errors.some((e) => e.message.includes("Start time is required"))
+    ).toBe(true);
+    expect(
+      result.errors.some((e) => e.message.includes("Reason / Incident No."))
+    ).toBe(true);
+  });
+
+  it("passes for a leave day with rostered hours", () => {
+    const data = makeValidData();
+    data.days[5].roster.status = "working";
+    data.days[5].roster.timeFrom = "20:00";
+    data.days[5].roster.timeTo = "06:00";
+    data.days[5].actual.status = "annual-leave";
+    const result = validateTimesheetData(data);
+    expect(result.success).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
   it("collects multiple errors", () => {
     const data = makeValidData();
     data.name = "";

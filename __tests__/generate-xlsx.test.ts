@@ -33,6 +33,27 @@ function makeTestData(): TimesheetData {
   days[3].overtimeTo = "08:00";
   days[3].overtimeReason = "Overrun 5647764";
 
+  // Friday is rest-day overtime (rostered off, called in)
+  days[4].actual.status = "overtime";
+  days[4].actual.timeFrom = "18:00";
+  days[4].actual.timeTo = "23:00";
+  days[4].actual.stationWorkedFrom = "Waterford";
+  days[4].overtimeReason = "Called in 12345";
+
+  // Saturday is annual leave with a rostered (overnight) shift
+  days[5].roster.status = "working";
+  days[5].roster.timeFrom = "20:00";
+  days[5].roster.timeTo = "06:00";
+  days[5].roster.stationWorkedFrom = "Waterford";
+  days[5].actual.status = "annual-leave";
+
+  // Sunday is sick leave with a rostered shift
+  days[6].roster.status = "working";
+  days[6].roster.timeFrom = "09:00";
+  days[6].roster.timeTo = "21:00";
+  days[6].roster.stationWorkedFrom = "Waterford";
+  days[6].actual.status = "sick-leave";
+
   return {
     name: "Jane Doe",
     personnelNumber: "63221553",
@@ -111,6 +132,49 @@ describe("generateXlsx", () => {
     expect(ws.getRow(14).getCell(11).value).toBe("07:00");
     expect(ws.getRow(14).getCell(12).value).toBe("08:00");
     expect(ws.getRow(14).getCell(13).value).toBe("Overrun 5647764");
+  });
+
+  it("renders rest-day overtime hours in the actual row and overtime columns", async () => {
+    const buffer = await generateXlsx(makeTestData());
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const ws = workbook.worksheets[0];
+
+    // Friday roster row 16, actual row 17
+    expect(ws.getRow(16).getCell(4).value).toBe("Rest");
+    expect(ws.getRow(17).getCell(4).value).toBe("18:00");
+    expect(ws.getRow(17).getCell(5).value).toBe("23:00");
+    // OT columns mirror the worked hours (top/master row of the merged pair)
+    expect(ws.getRow(16).getCell(11).value).toBe("18:00");
+    expect(ws.getRow(16).getCell(12).value).toBe("23:00");
+    expect(ws.getRow(16).getCell(13).value).toBe("Called in 12345");
+    // Station renders for the overtime day
+    expect(ws.getRow(16).getCell(6).value).toBe("Waterford");
+  });
+
+  it("shows rostered hours on a leave day with leave text in the actual row", async () => {
+    const buffer = await generateXlsx(makeTestData());
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const ws = workbook.worksheets[0];
+
+    // Saturday roster row 18, actual row 19
+    expect(ws.getRow(18).getCell(4).value).toBe("20:00");
+    expect(ws.getRow(18).getCell(5).value).toBe("06:00");
+    expect(ws.getRow(19).getCell(4).value).toBe("Annual Leave");
+    expect(ws.getRow(19).getCell(5).value).toBe("Annual Leave");
+  });
+
+  it("renders sick leave with rostered hours", async () => {
+    const buffer = await generateXlsx(makeTestData());
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const ws = workbook.worksheets[0];
+
+    // Sunday roster row 20, actual row 21
+    expect(ws.getRow(20).getCell(4).value).toBe("09:00");
+    expect(ws.getRow(21).getCell(4).value).toBe("Sick Leave");
+    expect(ws.getRow(21).getCell(5).value).toBe("Sick Leave");
   });
 
   it("has green fill on header label cells", async () => {

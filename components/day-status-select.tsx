@@ -6,12 +6,14 @@ interface DayStatusSelectProps {
   value: DayStatus;
   onChange: (value: DayStatus) => void;
   id: string;
+  options?: readonly DayStatus[];
 }
 
 export default function DayStatusSelect({
   value,
   onChange,
   id,
+  options = DAY_STATUSES,
 }: DayStatusSelectProps) {
   return (
     <select
@@ -20,7 +22,7 @@ export default function DayStatusSelect({
       onChange={(e) => onChange(e.target.value as DayStatus)}
       className="border border-gray-300 rounded px-2 py-1 text-sm"
     >
-      {DAY_STATUSES.map((status) => (
+      {options.map((status) => (
         <option key={status} value={status}>
           {STATUS_DISPLAY[status]}
         </option>

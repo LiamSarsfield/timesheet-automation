@@ -66,7 +66,8 @@ function populateRowData(
   }
   grid[gridRow][COL_ROW_TYPE] = rowType;
 
-  if (row.status !== "working") {
+  // "overtime" is a worked status: it renders its hours like a working row.
+  if (row.status !== "working" && row.status !== "overtime") {
     const statusText = STATUS_DISPLAY[row.status];
     grid[gridRow][COL_TIME_FROM] = statusText;
     grid[gridRow][COL_TIME_TO] = statusText;
@@ -113,8 +114,14 @@ export function generateCsv(data: TimesheetData): string {
 
     // Overtime (per-day, placed on roster row for merged layout)
     if (day.hasOvertime) {
+      // Working-day shift extension: only the hours beyond the rostered shift.
       grid[rosterRow][COL_OVERTIME_FROM] = day.overtimeFrom;
       grid[rosterRow][COL_OVERTIME_TO] = day.overtimeTo;
+      grid[rosterRow][COL_OVERTIME_REASON] = day.overtimeReason;
+    } else if (day.actual.status === "overtime") {
+      // Rest-day overtime: the OT columns mirror the actual worked hours.
+      grid[rosterRow][COL_OVERTIME_FROM] = day.actual.timeFrom;
+      grid[rosterRow][COL_OVERTIME_TO] = day.actual.timeTo;
       grid[rosterRow][COL_OVERTIME_REASON] = day.overtimeReason;
     }
   });

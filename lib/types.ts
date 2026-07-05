@@ -17,6 +17,7 @@ export const DAY_STATUSES = [
   "rest",
   "annual-leave",
   "sick-leave",
+  "overtime",
 ] as const;
 
 export type DayStatus = (typeof DAY_STATUSES)[number];
@@ -26,6 +27,8 @@ export const STATUS_DISPLAY: Record<DayStatus, string> = {
   rest: "Rest",
   "annual-leave": "Annual Leave",
   "sick-leave": "Sick Leave",
+  // Label only — an "overtime" row renders its worked hours, never this text.
+  overtime: "Overtime",
 };
 
 export const HOURS = Array.from({ length: 24 }, (_, i) =>
@@ -42,7 +45,7 @@ const timesheetRowSchema = z
     stationWorkedFrom: z.string(),
   })
   .superRefine((row, ctx) => {
-    if (row.status === "working") {
+    if (row.status === "working" || row.status === "overtime") {
       if (!HOUR_REGEX.test(row.timeFrom)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -96,6 +99,16 @@ export const timesheetDaySchema = z
           path: ["overtimeReason"],
         });
       }
+    }
+
+    // Rest-day overtime (actual status "overtime") stores its hours in the actual
+    // row rather than setting hasOvertime, so enforce the reason separately.
+    if (day.actual.status === "overtime" && !day.overtimeReason.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Reason / Incident No. is required",
+        path: ["overtimeReason"],
+      });
     }
   });
 
