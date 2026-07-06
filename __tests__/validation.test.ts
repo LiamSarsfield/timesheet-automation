@@ -109,6 +109,55 @@ describe("validateTimesheetData", () => {
     expect(result.errors).toHaveLength(0);
   });
 
+  it("fails when a rest-day overtime has a working roster (double-count)", () => {
+    const data = makeValidData();
+    data.days[4].roster.status = "working";
+    data.days[4].roster.timeFrom = "09:00";
+    data.days[4].roster.timeTo = "21:00";
+    data.days[4].actual.status = "overtime";
+    data.days[4].actual.timeFrom = "18:00";
+    data.days[4].actual.timeTo = "23:00";
+    data.days[4].overtimeReason = "Called in 12345";
+    const result = validateTimesheetData(data);
+    expect(result.success).toBe(false);
+    expect(
+      result.errors.some((e) => e.message.includes('Roster must be "Rest"'))
+    ).toBe(true);
+  });
+
+  it("fails when a rest day is worked as plain Working instead of Overtime", () => {
+    const data = makeValidData();
+    data.days[4].roster.status = "rest";
+    data.days[4].actual.status = "working";
+    data.days[4].actual.timeFrom = "18:00";
+    data.days[4].actual.timeTo = "23:00";
+    const result = validateTimesheetData(data);
+    expect(result.success).toBe(false);
+    expect(
+      result.errors.some((e) =>
+        e.message.includes("must be recorded as Overtime")
+      )
+    ).toBe(true);
+  });
+
+  it("fails when both auto-detected and rest-day overtime are set", () => {
+    const data = makeValidData();
+    data.days[4].actual.status = "overtime";
+    data.days[4].actual.timeFrom = "18:00";
+    data.days[4].actual.timeTo = "23:00";
+    data.days[4].overtimeReason = "Called in 12345";
+    data.days[4].hasOvertime = true;
+    data.days[4].overtimeFrom = "21:00";
+    data.days[4].overtimeTo = "23:00";
+    const result = validateTimesheetData(data);
+    expect(result.success).toBe(false);
+    expect(
+      result.errors.some((e) =>
+        e.message.includes("cannot have both auto-detected overtime")
+      )
+    ).toBe(true);
+  });
+
   it("collects multiple errors", () => {
     const data = makeValidData();
     data.name = "";

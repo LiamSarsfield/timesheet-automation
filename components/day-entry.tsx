@@ -132,7 +132,7 @@ export default function DayEntry({ day, onChange }: DayEntryProps) {
       // station as an optional default; start the window empty.
       onChange({
         ...day,
-        roster: { ...day.roster, status: "rest", timeFrom: "", timeTo: "" },
+        roster: { ...day.roster, status: "rest", ...CLEARED_TIMES },
         actual: { ...day.actual, status: "overtime", timeFrom: "", timeTo: "" },
         ...CLEARED_OT,
       });
@@ -213,7 +213,13 @@ export default function DayEntry({ day, onChange }: DayEntryProps) {
                 value={day.roster.status}
                 onChange={handleRosterStatusChange}
                 options={ROSTER_STATUS_OPTIONS}
+                disabled={day.actual.status === "overtime"}
               />
+              {day.actual.status === "overtime" && (
+                <span className="text-xs text-gray-500">
+                  Locked to Rest for rest-day overtime
+                </span>
+              )}
             </div>
             {day.roster.status === "working" && (
               <div className="space-y-3 pl-4 border-l-2 border-blue-200">
