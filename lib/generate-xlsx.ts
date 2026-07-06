@@ -423,7 +423,11 @@ export async function generateXlsx(data: TimesheetData): Promise<Buffer> {
 
     // Station (merged, use actual's station or roster's)
     const station = day.actual.stationWorkedFrom || day.roster.stationWorkedFrom;
-    if (day.roster.status === "working" || day.actual.status === "working") {
+    if (
+      day.roster.status === "working" ||
+      day.actual.status === "working" ||
+      day.actual.status === "overtime"
+    ) {
       setCell(ws, rosterRowIdx, 6, station, {
         font: FONT_VALUE,
         alignment: CENTER_MIDDLE,
@@ -432,8 +436,14 @@ export async function generateXlsx(data: TimesheetData): Promise<Buffer> {
 
     // Overtime (per-day, in merged cells)
     if (day.hasOvertime) {
+      // Working-day shift extension: only the hours beyond the rostered shift.
       setCell(ws, rosterRowIdx, 11, day.overtimeFrom, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
       setCell(ws, rosterRowIdx, 12, day.overtimeTo, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
+      setCell(ws, rosterRowIdx, 13, day.overtimeReason, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
+    } else if (day.actual.status === "overtime") {
+      // Rest-day overtime: the OT columns mirror the actual worked hours.
+      setCell(ws, rosterRowIdx, 11, day.actual.timeFrom, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
+      setCell(ws, rosterRowIdx, 12, day.actual.timeTo, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
       setCell(ws, rosterRowIdx, 13, day.overtimeReason, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
     }
 
@@ -548,7 +558,8 @@ function populateTimeRow(
   row: number,
   rowData: TimesheetRow
 ): void {
-  if (rowData.status !== "working") {
+  // "overtime" is a worked status: it renders its hours like a working row.
+  if (rowData.status !== "working" && rowData.status !== "overtime") {
     const statusText = STATUS_DISPLAY[rowData.status];
     setCell(ws, row, 4, statusText, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
     setCell(ws, row, 5, statusText, { font: FONT_VALUE, alignment: CENTER_MIDDLE });
